@@ -28,6 +28,7 @@ Array *read_array(std::string str)
     {
         if (isdigit(c))
         {
+            isNumber = true;
             if (isFloat)
             {
                 temp_number = temp_number * 10;
@@ -56,7 +57,7 @@ Array *read_array(std::string str)
         {
             depth -= 1;
         }
-        if (c == ',' || c == ']')
+        if ((c == ',' || c == ']') && isNumber == true)
         {
             temp_number = temp_number / pow(10, decimal_number);
             new_array->add(temp_number);
@@ -76,18 +77,18 @@ int main()
 
     Array *new_array = nullptr;
 
-    new_array = read_array("[ 11.5 , 12.36 ,         12.525   ,     168.21522,2485.31554]");
+    new_array = read_array("[ 11.5 , 12.36 , ,,,,;;fsnjlnk,,,        12.525   ,     168.21522,2485.31554],");
 
     new_array->show();
 
     cout << "standard deviation is:\n";
-    cout << new_array->std()<<"\n";
+    cout << new_array->std() << "\n";
 
     cout << "mean of data is:\n";
-    cout << new_array->mean()<<"\n";
+    cout << new_array->mean() << "\n";
 
     cout << "median of dataset is:\n";
-    cout << new_array->median()<<"\n";
+    cout << new_array->median() << "\n";
 
     return 0;
 }
