@@ -1,14 +1,8 @@
 #include <iostream>
+#include <cmath>
+#include "node.hpp"
 
 using namespace std;
-
-class Node
-{
-public:
-    double value = 0;
-    Node *next = 0;
-    Node *prev = 0;
-};
 
 class Array
 {
@@ -16,6 +10,37 @@ public:
     int size = 0;
     Node *first_node = nullptr;
     Node *last_node = nullptr;
+
+    // ************************* method's for access values *************************
+    void show()
+    {
+        if (this->size == 0)
+            cout << "array is empty\n";
+
+        Node *temp_pointer = this->first_node;
+        for (int i = 0; i < this->size; i++)
+        {
+            cout << temp_pointer->value << "\n";
+            temp_pointer = temp_pointer->next;
+        }
+    }
+
+    double get(int node_number = 0)
+    {
+        if (node_number >= this->size)
+        {
+            // raise overlap error
+            throw std::invalid_argument("index is overlap");
+        }
+        Node *temp_pointer = this->first_node;
+        for (int i = 0; i < node_number; i++)
+        {
+            temp_pointer = temp_pointer->next;
+        }
+        return temp_pointer->value;
+    }
+
+    // ************************* method's for changing values *************************
 
     void push(double new_value)
     {
@@ -52,21 +77,6 @@ public:
         this->size++;
     }
 
-    double get(int node_number = 0)
-    {
-        if (node_number >= this->size)
-        {
-            // raise overlap error
-            throw std::invalid_argument("index is overlap");
-        }
-        Node *temp_pointer = this->first_node;
-        for (int i = 0; i < node_number; i++)
-        {
-            temp_pointer = temp_pointer->next;
-        }
-        return temp_pointer->value;
-    }
-
     void pop()
     {
         if (this->size == 0)
@@ -91,6 +101,28 @@ public:
 
             this->size--;
         }
+    }
+
+    void set(double new_value = 0, int location = 0)
+    {
+
+        if (this->size == 0)
+            throw std::invalid_argument("array is empty");
+
+        if (location < 0)
+            location = this->size - ((-1 * location) % this->size);
+
+        if (location >= this->size)
+            location = location % this->size;
+
+        Node *temp_pointer = this->first_node;
+
+        for (int i = 0; i < location; i++)
+        {
+            temp_pointer = temp_pointer->next;
+        }
+        temp_pointer->value = new_value;
+        return;
     }
 
     void add(double value = 0, int prev_index = -2)
@@ -121,6 +153,7 @@ public:
 
         this->first_node->prev = new_node;
         this->first_node = new_node;
+        this->size += 1;
     }
 
     void add_after_node(double value = 0, int prev_index = 0)
@@ -249,20 +282,9 @@ public:
         delete temp_pointer;
     }
 
-    void show()
-    {
-        if (this->size == 0)
-            cout << "array is empty\n";
+    // ************************* method's for statistics calculation *************************
 
-        Node *temp_pointer = this->first_node;
-        for (int i = 0; i < this->size; i++)
-        {
-            cout << temp_pointer->value << "\n";
-            temp_pointer = temp_pointer->next;
-        }
-    }
-
-    double avg()
+    double mean()
     {
         double avg = 0;
         Node *temp_pointer = this->first_node;
@@ -287,110 +309,25 @@ public:
             return (a + b) / 2;
         }
     }
-};
 
-class Proxy_node
-{
-public:
-    Array *value = nullptr;
-    Proxy_node *next = nullptr;
-    Proxy_node *prev = nullptr;
-};
-
-class Matrix
-{
-public:
-    int size = 0;
-    Proxy_node *first_array = nullptr;
-    Proxy_node *last_array = nullptr;
-
-    void add_row(Array *new_row)
+    double variance()
     {
-        // create new array node
-        Proxy_node *new_node = new Proxy_node;
-        new_node->value = new_row;
-        if (this->first_array == nullptr)
+        double square_of_diff = 0;
+        double mean = this->mean();
+        Node *temp_node = this->first_node;
+
+        for (int i = 0; i < this->size; i++)
         {
-            this->first_array = new_node;
-            this->last_array = new_node;
+            square_of_diff += pow((mean - temp_node->value), 2);
+            temp_node = temp_node->next;
         }
-        else
-        {
-            new_node->prev = this->last_array;
-            this->last_array->next = new_node;
-            this->last_array = new_node;
-        }
-        this->size++;
+
+        return square_of_diff / this->size;
     }
 
-    void remove_row(int array_index = 0)
+    double std()
     {
-
-        if (array_index > this->size)
-            throw std::invalid_argument("index is overlap");
-
-        Proxy_node *temp = this->first_array;
-        for (int i = 0; i < array_index; i++)
-        {
-            temp = temp->next;
-        }
-
-        if (this->first_array == temp)
-            this->first_array = temp->next;
-
-        if (this->last_array == temp)
-            this->last_array = temp->prev;
-
-        if (temp->prev != nullptr)
-            temp->prev->next = temp->next;
-
-        if (temp->next != nullptr)
-            temp->next->prev = temp->prev;
-
-        delete temp;
+        double variance = this->variance();
+        return sqrt(variance);
     }
 };
-
-int main()
-{
-
-    Array array1;
-    array1.push(12.0);
-    array1.push(13.0);
-    array1.push(14.0);
-    array1.push(15.0);
-
-    array1.add(3.5,-2);
-
-    array1.show();
-
-    // Array array2 ;
-    // array2.push(10.0);
-    // array2.push(11.0);
-    // array2.push(12.0);
-    // array2.push(13.0);
-    // array2.push(14.0);
-    // array2.push(15.0);
-
-    // array2.remove(0);
-    // array2.remove(0);
-    // array2.remove(0);
-
-    // Array *array2 = new Array;
-    // array2->push(10.0);
-    // array2->push(11.0);
-    // array2->push(12.0);
-    // array2->push(13.0);
-    // array2->push(14.0);
-    // array2->push(15.0);
-
-    // Matrix *mat1 = new Matrix();
-    // mat1->add_row(array1);
-    // mat1->add_row(array2);
-
-    // mat1->remove_row(0);
-
-    // cout << mat1->first_array->value->get(0);
-
-    return 1;
-}
