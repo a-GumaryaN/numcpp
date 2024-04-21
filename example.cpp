@@ -40,4 +40,13 @@ int main()
 
     // show size of matrix
     mat1->size();
+
+    // you can padding matrix
+    cout << "original matrix :\n";
+    mat1->show();
+
+    mat1->padding(1, 2);
+
+    cout << "after padding :\n";
+    mat1->show();
 }
