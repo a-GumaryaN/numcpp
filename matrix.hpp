@@ -21,6 +21,7 @@ public:
     int matrix_size[2] = {0, 0};
     Proxy_node *first_array = nullptr;
     Proxy_node *last_array = nullptr;
+    int padded_size=0;
 
     void add_row(Array *new_row)
     {
@@ -140,6 +141,47 @@ public:
         cout << "[" << this->matrix_size[0] << "," << this->matrix_size[1] << "]";
     }
 
+    void show()
+    {
+        Proxy_node *pointer = this->first_array;
+        for (int i = 0; i < this->matrix_size[1]; i++)
+        {
+            pointer->reference->show();
+            cout << "\n";
+            pointer = pointer->next;
+        }
+    }
 
+    void padding(int pad_value = 0, int pad_size = 0)
+    {
+        Proxy_node *pointer = this->first_array;
+        for (int i = 0; i < this->matrix_size[1]; i++)
+        {
+            for (int j = 0; j < pad_size; j++)
+            {
+                pointer->reference->push(pad_value);
+                pointer->reference->add_to_first(pad_value);
+            }
+            pointer = pointer->next;
+        }
+        this->matrix_size[0] += (2 * pad_size);
+        for (int i = 0; i < pad_size; i++)
+        {
+            Array *new_row = fill(this->matrix_size[0],pad_value);
+            this->add_to_first(new_row);
+            this->add_row(new_row);
+        }
+        this->padded_size=pad_size;
+    }
 
+private:
+    void add_to_first(Array *new_row)
+    {
+        Proxy_node *new_node = new Proxy_node;
+        new_node->reference = new_row;
+        new_node->next = this->first_array;
+        this->first_array->prev = new_node;
+        this->first_array = new_node;
+        this->matrix_size[1] += 1;
+    }
 };

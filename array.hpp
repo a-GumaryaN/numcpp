@@ -30,11 +30,13 @@ public:
             cout << "array is empty\n";
 
         Node *temp_pointer = this->first_node;
+        cout<<"[ ";
         for (int i = 0; i < this->size; i++)
         {
-            cout << temp_pointer->value << "\n";
+            cout << temp_pointer->value << ", ";
             temp_pointer = temp_pointer->next;
         }
+        cout<<" ]";
     }
 
     double get(int node_number = 0)
@@ -400,5 +402,21 @@ Array *read_array(std::string str)
         }
     }
 
+    return new_array;
+}
+
+Array *zeros(int length = 0)
+{
+    Array *new_array = new Array;
+    for (int i = 0; i < length; i++)
+        new_array->add(0);
+    return new_array;
+}
+
+Array *fill(int length = 0,double value=0)
+{
+    Array *new_array = new Array;
+    for (int i = 0; i < length; i++)
+        new_array->add(value);
     return new_array;
 }
