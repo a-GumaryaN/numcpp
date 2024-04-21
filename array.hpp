@@ -30,13 +30,13 @@ public:
             cout << "array is empty\n";
 
         Node *temp_pointer = this->first_node;
-        cout<<"[ ";
+        cout << "[ ";
         for (int i = 0; i < this->size; i++)
         {
             cout << temp_pointer->value << ", ";
             temp_pointer = temp_pointer->next;
         }
-        cout<<" ]";
+        cout << " ]";
     }
 
     double get(int node_number = 0)
@@ -413,10 +413,34 @@ Array *zeros(int length = 0)
     return new_array;
 }
 
-Array *fill(int length = 0,double value=0)
+Array *fill(int length = 0, double value = 0)
 {
     Array *new_array = new Array;
     for (int i = 0; i < length; i++)
         new_array->add(value);
     return new_array;
+}
+
+double dot(Array *array_1, Array *array_2)
+{
+    if (array_1->size != array_2->size)
+        throw std::invalid_argument("array's are not the same length");
+
+    double result = 0;
+    for(int i=0; i<array_1->size; i++){
+        result+=array_1->get(i)*array_2->get(i);
+    }
+    return result;
+}
+
+Array* multiply(Array *array_1, Array *array_2)
+{
+    Array* result = new Array;
+    if (array_1->size != array_2->size)
+        throw std::invalid_argument("array's are not the same length");
+
+    for(int i=0; i<array_1->size; i++){
+        result->push(array_1->get(i)*array_2->get(i));
+    }
+    return result;
 }

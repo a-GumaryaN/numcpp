@@ -21,7 +21,7 @@ public:
     int matrix_size[2] = {0, 0};
     Proxy_node *first_array = nullptr;
     Proxy_node *last_array = nullptr;
-    int padded_size=0;
+    int padded_size = 0;
 
     void add_row(Array *new_row)
     {
@@ -167,11 +167,30 @@ public:
         this->matrix_size[0] += (2 * pad_size);
         for (int i = 0; i < pad_size; i++)
         {
-            Array *new_row = fill(this->matrix_size[0],pad_value);
+            Array *new_row = fill(this->matrix_size[0], pad_value);
             this->add_to_first(new_row);
             this->add_row(new_row);
         }
-        this->padded_size=pad_size;
+        this->padded_size = pad_size;
+    }
+
+    void set(int x, int y, double new_value)
+    {
+        if (this->matrix_size[0] == 0 || this->matrix_size[1] == 0)
+            throw std::invalid_argument("matrix is empty");
+
+        if (x >= this->matrix_size[0])
+            throw std::invalid_argument("x index is overlap");
+
+        if (y >= this->matrix_size[1])
+            throw std::invalid_argument("y index is overlap");
+
+        Proxy_node *temp_proxy = this->first_array;
+        for (int j = 0; j < y; j++)
+        {
+            temp_proxy = temp_proxy->next;
+        }
+        temp_proxy->reference->set(new_value, x);
     }
 
 private:
@@ -185,3 +204,66 @@ private:
         this->matrix_size[1] += 1;
     }
 };
+
+Matrix *zero_matrix(int x = 0, int y = 0)
+{
+    Matrix *result = new Matrix;
+    Array *zero_array = zeros(x);
+
+    for (int i = 0; i < y; i++)
+        result->add_row(zero_array);
+
+    return result;
+}
+
+Matrix *filled_matrix(int x = 0, int y = 0, double value = 0)
+{
+    Matrix *result = new Matrix;
+    Array *zero_array = fill(x, value);
+
+    for (int i = 0; i < y; i++)
+        result->add_row(zero_array);
+
+    return result;
+}
+
+double convolve(Matrix *main_matrix, Matrix *kernel, int center_i = 0, int center_j = 0, int target_i = 0, int target_j = 0)
+{
+    double result;
+    int addition_i = target_i - center_i,
+        addition_j = target_j - center_j;
+
+    for (int j = 0; j < kernel->matrix_size[1]; j++)
+    {
+        for (int i = 0; i < kernel->matrix_size[0]; i++)
+        {
+            result += kernel->get(i, j) * main_matrix->get(addition_i + i, addition_j + j);
+        }
+    }
+
+    return result;
+}
+
+Matrix *conv(Matrix *main_matrix, Matrix *kernel, int padding_size = 0, double padding_value = 0, int center_i = 0, int center_j = 0)
+{
+
+    int main_matrix_x = main_matrix->matrix_size[0],
+        main_matrix_y = main_matrix->matrix_size[1];
+
+    main_matrix->padding(padding_value, padding_size);
+
+    Matrix *result =new Matrix;
+
+    for (int i = 0; i < main_matrix_x; i++)
+    {
+        Array* temp_array=new Array;
+        for (int j = 0; j < main_matrix_y; j++)
+        {
+            double convolve_value = convolve(main_matrix, kernel, center_i, center_j, i + padding_size, j + padding_size);
+            temp_array->push(convolve_value);
+        }
+        result->add_row(temp_array);
+    }
+
+    return result;
+}
