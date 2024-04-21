@@ -205,6 +205,69 @@ private:
     }
 };
 
+Matrix *read_matrix(std::string str)
+{
+    bool is_number = false,
+         is_float = false;
+    int decimal_number = 0,
+        depth = 0;
+    double temp_number = 0;
+    Array *temp_array = new Array;
+    Matrix *result = new Matrix;
+
+    for (char c : str)
+    {
+        if (c == '[')
+        {
+            depth += 1;
+            continue;
+        }
+        if (isdigit(c))
+        {
+            is_number = true;
+            if (is_float)
+            {
+                temp_number = temp_number * 10;
+                temp_number += to_digit(c);
+                decimal_number += 1;
+                continue;
+            }
+            else
+            {
+                temp_number = temp_number * 10;
+                temp_number += to_digit(c);
+                continue;
+            }
+        }
+        if (c == '.')
+        {
+            is_float = true;
+            continue;
+        }
+        if ((c == ',' && depth >= 2) || c == ']')
+        {
+            temp_number = temp_number / pow(10, decimal_number);
+            temp_array->add(temp_number);
+            temp_number = 0;
+            decimal_number = 0;
+            is_float = false;
+            is_number = false;
+        }
+        if (c == ']')
+        {
+            if (depth == 2)
+            {
+                result->add_row(temp_array);
+                temp_array = new Array;
+            }
+
+            depth -= 1;
+            continue;
+        }
+    }
+    return result;
+}
+
 Matrix *zero_matrix(int x = 0, int y = 0)
 {
     Matrix *result = new Matrix;
@@ -252,11 +315,11 @@ Matrix *conv(Matrix *main_matrix, Matrix *kernel, int padding_size = 0, double p
 
     main_matrix->padding(padding_value, padding_size);
 
-    Matrix *result =new Matrix;
+    Matrix *result = new Matrix;
 
     for (int i = 0; i < main_matrix_x; i++)
     {
-        Array* temp_array=new Array;
+        Array *temp_array = new Array;
         for (int j = 0; j < main_matrix_y; j++)
         {
             double convolve_value = convolve(main_matrix, kernel, center_i, center_j, i + padding_size, j + padding_size);
