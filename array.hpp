@@ -207,6 +207,12 @@ public:
             return;
         }
 
+        if (index_number >= this->size)
+            index_number = index_number % this->size;
+
+        if (index_number < 0)
+            index_number = this->size - ((-1 * index_number) % this->size);
+
         if (this->size == 0)
             throw std::invalid_argument("array is empty");
 
@@ -215,9 +221,6 @@ public:
 
         if (0 < index_number && index_number < this->size)
             this->remove_an_index(index_number);
-
-        if (index_number >= this->size || index_number < 0)
-            this->pop();
     }
 
     void reset_array()

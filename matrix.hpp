@@ -9,6 +9,10 @@ public:
     Array *reference = nullptr;
     Proxy_node *next = nullptr;
     Proxy_node *prev = nullptr;
+    void clean()
+    {
+        delete this->reference;
+    }
 };
 
 class Matrix
@@ -20,25 +24,122 @@ public:
 
     void add_row(Array *new_row)
     {
-        if (this->matrix_size[0] != 0 && new_row->size != this->matrix_size[0])
-            throw std::invalid_argument("new array length not match to matrix length");
+        if (this->matrix_size[1] == 0)
+        {
+            Proxy_node *new_node = new Proxy_node;
+            new_node->reference = new_row;
+            this->first_array = new_node;
+            this->last_array = new_node;
+            this->matrix_size[0] = new_row->size;
+            this->matrix_size[1] += 1;
+            return;
+        }
+        else
+        {
+            if (this->matrix_size[0] != 0 && new_row->size != this->matrix_size[0])
+                throw std::invalid_argument("new array length not match to matrix length");
 
-        Proxy_node *new_node = new Proxy_node;
-        new_node->reference = new_row;
-        this->first_array = new_node;
-        this->last_array = new_node;
-        this->matrix_size[0] = new_row->size;
-        this->matrix_size[1] += 1;
+            Proxy_node *new_proxy = new Proxy_node;
+            new_proxy->reference = new_row;
+            new_proxy->prev = this->last_array;
+            this->last_array->next = new_proxy;
+            this->last_array = new_proxy;
+            this->matrix_size[1] += 1;
+        }
     }
 
-    void remove_row(int array_index = 0)
+    void remove(int array_index = -1)
+    {
+        if (this->matrix_size[1] == 1)
+        {
+            this->reset_matrix();
+            return;
+        }
+        if (this->matrix_size[1] == 0)
+            throw std::invalid_argument("matrix is empty");
+
+        if (array_index >= this->matrix_size[1])
+            array_index = array_index % this->matrix_size[1];
+
+        if (array_index < 0)
+            array_index = this->matrix_size[1] - ((-1 * array_index) % this->matrix_size[1]);
+
+        if (array_index == 0)
+            this->remove_first();
+
+        if (0 < array_index && array_index < this->matrix_size[1])
+            this->remove_an_index(array_index);
+    }
+    void pop()
+    {
+        Proxy_node *temp_proxy = this->last_array;
+        this->last_array = this->last_array->prev;
+        this->last_array->next = nullptr;
+        temp_proxy->clean();
+        delete temp_proxy;
+        this->matrix_size[1] -= 1;
+    }
+    void remove_first()
+    {
+        if (this->matrix_size[1] == 1)
+        {
+            this->reset_matrix();
+            return;
+        }
+        Proxy_node *temp_proxy = this->first_array;
+        this->first_array = this->first_array->next;
+        this->first_array->prev = nullptr;
+        temp_proxy->clean();
+        delete temp_proxy;
+        this->matrix_size[1] -= 1;
+    }
+    void remove_an_index(int array_index = 0)
+    {
+        if (this->matrix_size[0] == 0 || this->matrix_size[1] == 0)
+            throw std::invalid_argument("matrix is empty");
+
+        if (array_index >= this->matrix_size[1])
+            throw std::invalid_argument("index is overlap");
+
+        Proxy_node *target_proxy = this->first_array;
+        for (int i = 0; i < array_index; i++)
+        {
+            target_proxy = target_proxy->next;
+        }
+        target_proxy->prev->next = target_proxy->next;
+        target_proxy->next->prev = target_proxy->prev;
+        target_proxy->clean();
+        delete target_proxy;
+        this->matrix_size[1] -= 1;
+    }
+    void reset_matrix()
     {
     }
 
-    void get() {}
+    double get(int x = 0, int y = 0)
+    {
+        if (this->matrix_size[0] == 0 || this->matrix_size[1] == 0)
+            throw std::invalid_argument("matrix is empty");
+
+        if (x >= this->matrix_size[0])
+            throw std::invalid_argument("x index is overlap");
+
+        if (y >= this->matrix_size[1])
+            throw std::invalid_argument("y index is overlap");
+
+        Proxy_node *temp_proxy = this->first_array;
+        for (int i = 0; i < y; i++)
+        {
+            temp_proxy = temp_proxy->next;
+        }
+        return temp_proxy->reference->get(x);
+    }
 
     void size()
     {
         cout << "[" << this->matrix_size[0] << "," << this->matrix_size[1] << "]";
     }
+
+
+
 };
