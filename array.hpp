@@ -2,8 +2,6 @@
 #include <cmath>
 #include "node.hpp"
 
-using namespace std;
-
 bool isdigit(char ch)
 {
     if (int(ch) >= 48 && int(ch) <= 57)
@@ -16,37 +14,38 @@ int to_digit(char ch)
     return int(ch) - 48;
 }
 
+template <typename Value_type>
 class Array
 {
 public:
     int size = 0;
-    Node *first_node = nullptr;
-    Node *last_node = nullptr;
+    Node<Value_type> *first_node = nullptr;
+    Node<Value_type> *last_node = nullptr;
 
     // ************************* method's for access values *************************
     void show()
     {
         if (this->size == 0)
-            cout << "array is empty\n";
+            std::cout << "array is empty\n";
 
-        Node *temp_pointer = this->first_node;
-        cout << "[ ";
+        Node<Value_type> *temp_pointer = this->first_node;
+        std::cout << "[ ";
         for (int i = 0; i < this->size; i++)
         {
-            cout << temp_pointer->value << ", ";
+            std::cout << temp_pointer->value << ", ";
             temp_pointer = temp_pointer->next;
         }
-        cout << " ]";
+        std::cout << " ]";
     }
 
-    double get(int node_number = 0)
+    Value_type get(int node_number = 0)
     {
         if (node_number >= this->size)
         {
             // raise overlap error
             throw std::invalid_argument("index is overlap");
         }
-        Node *temp_pointer = this->first_node;
+        Node<Value_type> *temp_pointer = this->first_node;
         for (int i = 0; i < node_number; i++)
         {
             temp_pointer = temp_pointer->next;
@@ -56,14 +55,14 @@ public:
 
     // ************************* method's for changing values *************************
 
-    void push(double new_value)
+    void push(Value_type new_value)
     {
+        // Create new node (same as before)
+        Node<Value_type> *new_node = new Node<Value_type>;
+        // set created node value
+        new_node->value = new_value;
         if (this->first_node == nullptr)
         {
-            // Create new node (same as before)
-            Node *new_node = new Node;
-            // set created node value
-            new_node->value = new_value;
             // set first_node pointer to created node
             this->first_node = new_node;
             // set last_node pointer to created node
@@ -75,10 +74,6 @@ public:
         }
         else
         {
-            // Create new node
-            Node *new_node = new Node;
-            // set created node value
-            new_node->value = new_value;
             // Set next of current last node to the new node
             this->last_node->next = new_node;
             // Set prev of the new node to the current last node
@@ -105,7 +100,7 @@ public:
         }
         if (this->last_node != nullptr)
         {
-            Node *temp_node = this->last_node;
+            Node<Value_type> *temp_node = this->last_node;
 
             this->last_node = this->last_node->prev;
 
@@ -117,7 +112,7 @@ public:
         }
     }
 
-    void set(double new_value = 0, int location = 0)
+    void set(Value_type new_value = 0, int location = 0)
     {
 
         if (this->size == 0)
@@ -129,7 +124,7 @@ public:
         if (location >= this->size)
             location = location % this->size;
 
-        Node *temp_pointer = this->first_node;
+        Node<Value_type> *temp_pointer = this->first_node;
 
         for (int i = 0; i < location; i++)
         {
@@ -139,7 +134,7 @@ public:
         return;
     }
 
-    void add(double value = 0, int prev_index = -2)
+    void add(Value_type value = 0, int prev_index = -2)
     {
 
         if (prev_index == -1)
@@ -158,9 +153,9 @@ public:
             this->add_after_node(value, prev_index);
     }
 
-    void add_to_first(double value)
+    void add_to_first(Value_type value)
     {
-        Node *new_node = new Node;
+        Node<Value_type> *new_node = new Node<Value_type>;
         new_node->value = value;
 
         new_node->next = this->first_node;
@@ -170,7 +165,7 @@ public:
         this->size += 1;
     }
 
-    void add_after_node(double value = 0, int prev_index = 0)
+    void add_after_node(Value_type value = 0, int prev_index = 0)
     {
 
         if (prev_index >= this->size)
@@ -179,10 +174,10 @@ public:
             throw std::invalid_argument("index is overlap");
         }
 
-        Node *new_node = new Node;
+        Node<Value_type> *new_node = new Node<Value_type>;
         new_node->value = value;
 
-        Node *temp_pointer = this->first_node;
+        Node<Value_type> *temp_pointer = this->first_node;
         for (int i = 0; i < prev_index; i++)
         {
             temp_pointer = temp_pointer->next;
@@ -228,7 +223,7 @@ public:
     void reset_array()
     {
 
-        Node *temp_node = this->first_node;
+        Node<Value_type> *temp_node = this->first_node;
         delete temp_node;
 
         this->first_node == nullptr;
@@ -238,7 +233,7 @@ public:
 
     void remove_first()
     {
-        Node *temp_node = this->first_node;
+        Node<Value_type> *temp_node = this->first_node;
 
         this->first_node->next->prev = nullptr;
 
@@ -258,7 +253,7 @@ public:
             // raise overlap error
             throw std::invalid_argument("index is overlap");
 
-        Node *temp_pointer = this->first_node;
+        Node<Value_type> *temp_pointer = this->first_node;
         for (int i = 0; i < index_number; i++)
         {
             temp_pointer = temp_pointer->next;
@@ -304,7 +299,7 @@ public:
     double mean()
     {
         double avg = 0;
-        Node *temp_pointer = this->first_node;
+        Node<Value_type> *temp_pointer = this->first_node;
         for (int i = 0; i < this->size; i++)
         {
             avg += temp_pointer->value;
@@ -331,7 +326,7 @@ public:
     {
         double square_of_diff = 0;
         double mean = this->mean();
-        Node *temp_node = this->first_node;
+        Node<Value_type> *temp_node = this->first_node;
 
         for (int i = 0; i < this->size; i++)
         {
@@ -349,9 +344,10 @@ public:
     }
 };
 
-Array *read_array(std::string str)
+template <typename Value_type>
+Array<Value_type> *read_array(std::string str)
 {
-    Array *new_array = new Array;
+    Array<Value_type> *new_array = new Array<Value_type>;
     bool isNumber = false;
     bool isFloat = false;
     int depth = 0;
@@ -405,42 +401,48 @@ Array *read_array(std::string str)
     return new_array;
 }
 
-Array *zeros(int length = 0)
+template <typename Value_type>
+Array<Value_type> *zeros(int length = 0)
 {
-    Array *new_array = new Array;
+    Array<Value_type> *new_array = new Array<Value_type>;
     for (int i = 0; i < length; i++)
         new_array->add(0);
     return new_array;
 }
 
-Array *fill(int length = 0, double value = 0)
+template <typename Value_type>
+Array<Value_type> *fill(int length = 0, Value_type value = 0)
 {
-    Array *new_array = new Array;
+    Array<Value_type> *new_array = new Array<Value_type>;
     for (int i = 0; i < length; i++)
         new_array->add(value);
     return new_array;
 }
 
-double dot(Array *array_1, Array *array_2)
+template <typename Value_type>
+double dot(Array<Value_type> *array_1, Array<Value_type> *array_2)
 {
     if (array_1->size != array_2->size)
         throw std::invalid_argument("array's are not the same length");
 
     double result = 0;
-    for(int i=0; i<array_1->size; i++){
-        result+=array_1->get(i)*array_2->get(i);
+    for (int i = 0; i < array_1->size; i++)
+    {
+        result += array_1->get(i) * array_2->get(i);
     }
     return result;
 }
 
-Array* multiply(Array *array_1, Array *array_2)
+template <typename Value_type>
+Array<Value_type> *multiply(Array<Value_type> *array_1, Array<Value_type> *array_2)
 {
-    Array* result = new Array;
+    Array<Value_type> *result = new Array<Value_type>;
     if (array_1->size != array_2->size)
         throw std::invalid_argument("array's are not the same length");
 
-    for(int i=0; i<array_1->size; i++){
-        result->push(array_1->get(i)*array_2->get(i));
+    for (int i = 0; i < array_1->size; i++)
+    {
+        result->push(array_1->get(i) * array_2->get(i));
     }
     return result;
 }

@@ -1,12 +1,11 @@
 #include <iostream>
 #include <cmath>
 
-using namespace std;
-
+template <typename Value_type>
 class Node
 {
 public:
-    double value = 0;
+    Value_type value;
     Node *next = 0;
     Node *prev = 0;
 };
